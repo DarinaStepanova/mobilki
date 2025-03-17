@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:paddingVertical="40dp"
+    android:paddingHorizontal="40dp"
+    tools:context=".CongratsActivity">
+
+    <TextView
+        android:id="@+id/congrats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/congrats"
+        android:textSize="26sp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pic"
+        android:src="@drawable/congrats"
+        app:layout_constraintTop_toBottomOf="@id/congrats"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/textViewCongratulations"/>
+
+
+    <TextView
+        android:id="@+id/textViewCongratulations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/registration_success_message"
+        android:textSize="26sp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/pic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewProcessingTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/processing_time_message"
+        android:fontFamily="@font/montserrat_regular"
+        android:textSize="16sp"
+        android:textColor="@color/gray"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/textViewCongratulations"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/buttonNext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_ripple"
+        android:text="@string/next"
+        android:fontFamily="@font/montserrat_regular"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/textViewProcessingTime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

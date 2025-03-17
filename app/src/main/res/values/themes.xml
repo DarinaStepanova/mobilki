@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.BlaBlaCat2" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/violet</item> <!-- Основной цвет -->
+        <item name="colorOnPrimary">@color/white</item> <!-- Цвет текста на основном фоне -->
+        <item name="colorSecondary">@color/white</item> <!-- Вторичный цвет -->
+        <item name="colorOnSecondary">@color/black</item> <!-- Цвет текста на вторичном фоне -->
+        <item name="strokeColor">@color/stroke</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+    <style name="Theme.BlaBlaCat2" parent="Base.Theme.BlaBlaCat2" />
+</resources>
