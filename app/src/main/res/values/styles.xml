@@ -15,4 +15,36 @@
         <item name="itemStrokeWidth">1dp</item>
         <item name="itemStrokeColor">@color/material_dynamic_primary10</item>
     </style>
+    <style name="ButtonCarStyle" parent="Widget.Material3.Button">
+<!--        <item name="android:background">@drawable/button_ripple</item>-->
+        <item name="backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="strokeColor">@color/violet</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:strokeColor">@color/violet</item>
+        <item name="android:strokeWidth">@integer/material_motion_duration_long_1</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="itemStrokeWidth">2dp</item>
+        <item name="itemStrokeColor">@color/material_dynamic_primary10</item>
+    </style>
+    <style name="SettingsMenuItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="iconSize">24sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconTint">@color/violet</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+    </style>
+
 </resources>

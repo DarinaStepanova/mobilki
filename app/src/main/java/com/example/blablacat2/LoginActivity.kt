@@ -1,5 +1,6 @@
 package com.example.blablacat2
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -9,20 +10,28 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.example.blablacat2.data.SharedPreferencesHelper
+import com.example.blablacat2.data.database.AppDatabase
+import com.example.blablacat2.data.dao.UserDao
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.*
 
 class LoginActivity : BasicActivity() {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var emailInputLayout: TextInputLayout
     private lateinit var passwordInputLayout: TextInputLayout
+    private lateinit var userDao: UserDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        // Инициализация БД
+        val database = AppDatabase.getDatabase(this)
+        userDao = database.userDao()
 
         emailInputLayout = findViewById(R.id.textInputLayoutEmail)
         passwordInputLayout = findViewById(R.id.textInputLayoutPassword)
@@ -33,22 +42,20 @@ class LoginActivity : BasicActivity() {
         val registerText = findViewById<TextView>(R.id.textRegister)
         progressBar = findViewById(R.id.progressBar)
 
-        // TextWatcher для Email
+        // Валидация email
         emailInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 validateEmail(s.toString().trim())
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // TextWatcher для Password
+        // Валидация пароля
         passwordInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 validatePassword(s.toString().trim())
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -72,7 +79,6 @@ class LoginActivity : BasicActivity() {
                 startActivity(Intent(this, NoConnectionActivity::class.java))
                 finish()
             }
-
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
@@ -97,7 +103,7 @@ class LoginActivity : BasicActivity() {
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailInputLayout.error = getString(R.string.valid_email)
         } else {
-            emailInputLayout.error = null // Сбросить ошибку
+            emailInputLayout.error = null
         }
     }
 
@@ -107,7 +113,7 @@ class LoginActivity : BasicActivity() {
         } else if (password.length < 6) {
             passwordInputLayout.error = getString(R.string.minimum_six)
         } else {
-            passwordInputLayout.error = null // Сбросить ошибку
+            passwordInputLayout.error = null
         }
     }
 
@@ -117,11 +123,33 @@ class LoginActivity : BasicActivity() {
             finish()
         }
 
-        // Здесь должен быть запрос к серверу (имитация)
-        Toast.makeText(this, getString(R.string.lucky), Toast.LENGTH_SHORT).show()
-        progressBar.visibility = ProgressBar.GONE
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
+        CoroutineScope(Dispatchers.IO).launch {
+            val user = userDao.getUserByEmail(email)
+            if (user != null && user.password == password) {
+                userDao.logoutAllUsers() // Сбрасываем всех авторизованных
+                userDao.insertUser(user.copy(isLoggedIn = true)) // Авторизуем текущего пользователя
+
+                withContext(Dispatchers.Main) {
+                    SharedPreferencesHelper.saveIsLoggedIn(this@LoginActivity, true)
+                    Toast.makeText(this@LoginActivity, getString(R.string.lucky), Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@LoginActivity, BaseActivity::class.java))
+                    finish()
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    showToast("Неверный email или пароль")
+                }
+            }
+        }
+    }
+
+
+    private fun saveCurrentUserEmail(email: String) {
+        val sharedPref = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("current_user_email", email)
+            apply()
+        }
     }
 
     private fun showToast(message: String) {

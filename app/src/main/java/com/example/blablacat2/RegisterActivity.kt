@@ -9,8 +9,12 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.Toast
+import com.example.blablacat2.data.database.AppDatabase
+import com.example.blablacat2.data.dao.UserDao
+import com.example.blablacat2.data.model.User
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.*
 
 class RegisterActivity : BasicActivity() {
 
@@ -18,10 +22,14 @@ class RegisterActivity : BasicActivity() {
     private lateinit var passwordInputLayout: TextInputLayout
     private lateinit var confirmPasswordInputLayout: TextInputLayout
     private lateinit var checkBoxTerms: CheckBox
+    private lateinit var userDao: UserDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        val database = AppDatabase.getDatabase(this)
+        userDao = database.userDao()
 
         emailInputLayout = findViewById(R.id.textInputLayoutEmail)
         passwordInputLayout = findViewById(R.id.textInputLayoutPassword)
@@ -72,10 +80,9 @@ class RegisterActivity : BasicActivity() {
                 if (!isInternetAvailable()) {
                     startActivity(Intent(this, NoConnectionActivity::class.java))
                     finish()
+                } else {
+                    checkUserAndProceed(email, password)
                 }
-
-                // Перейти на следующий экран регистрации
-                startActivity(Intent(this, RegisterDetailsActivity::class.java))
             }
         }
 
@@ -89,10 +96,52 @@ class RegisterActivity : BasicActivity() {
         }
     }
 
+    private fun checkUserAndProceed(email: String, password: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val existingUser = userDao.getUserByEmail(email)
+
+            withContext(Dispatchers.Main) {
+                if (existingUser != null) {
+                    showToast(getString(R.string.email_exist))
+                } else {
+                    saveUserAndGoNext(email, password)
+                }
+            }
+        }
+    }
+
+    private fun saveUserAndGoNext(email: String, password: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newUser = User(
+                email = email,
+                password = password,
+                lastName = "",
+                firstName = "",
+                middleName = "",
+                birthDate = "",
+                gender = "",
+                profilePhotoUri = "",
+                licenseNumber = "",
+                licenseIssueDate = "",
+                passportPhotoUri = "",
+                licensePhotoUri = ""
+            )
+
+            userDao.insertUser(newUser)
+
+            withContext(Dispatchers.Main) {
+                val intent = Intent(this@RegisterActivity, RegisterDetailsActivity::class.java)
+                intent.putExtra("email", email)
+                intent.putExtra("password", password)
+                startActivity(intent)
+                finish()
+            }
+        }
+    }
+
     private fun validateInput(email: String, password: String, confirmPassword: String): Boolean {
         var isValid = true
 
-        // Проверка email
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailInputLayout.error = getString(R.string.valid_email)
             isValid = false
@@ -100,7 +149,6 @@ class RegisterActivity : BasicActivity() {
             emailInputLayout.error = null
         }
 
-        // Проверка пароля
         if (password.isEmpty() || password.length < 6) {
             passwordInputLayout.error = getString(R.string.minimum_six)
             isValid = false
@@ -108,7 +156,6 @@ class RegisterActivity : BasicActivity() {
             passwordInputLayout.error = null
         }
 
-        // Проверка подтверждения пароля
         if (confirmPassword.isEmpty() || confirmPassword != password) {
             confirmPasswordInputLayout.error = getString(R.string.valid_password)
             isValid = false
@@ -116,9 +163,8 @@ class RegisterActivity : BasicActivity() {
             confirmPasswordInputLayout.error = null
         }
 
-        // Проверка CheckBox
         if (!checkBoxTerms.isChecked) {
-            Toast.makeText(this, getString(R.string.confid), Toast.LENGTH_SHORT).show()
+            showToast(getString(R.string.confid))
             isValid = false
         }
 
@@ -131,7 +177,7 @@ class RegisterActivity : BasicActivity() {
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailInputLayout.error = getString(R.string.valid_email)
         } else {
-            emailInputLayout.error = null // Сбросить ошибку
+            emailInputLayout.error = null
         }
     }
 
@@ -141,7 +187,7 @@ class RegisterActivity : BasicActivity() {
         } else if (password.length < 6) {
             passwordInputLayout.error = getString(R.string.minimum_six)
         } else {
-            passwordInputLayout.error = null // Сбросить ошибку
+            passwordInputLayout.error = null
         }
     }
 
@@ -152,7 +198,11 @@ class RegisterActivity : BasicActivity() {
         } else if (confirmPassword != password) {
             confirmPasswordInputLayout.error = getString(R.string.valid_password)
         } else {
-            confirmPasswordInputLayout.error = null // Сбросить ошибку
+            confirmPasswordInputLayout.error = null
         }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
